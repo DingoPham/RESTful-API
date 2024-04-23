@@ -15,7 +15,7 @@ Interface) là một kiểu thiết kế và triển khai các dịch vụ web (
 trúc REST. 
     - Tuân thủ nguyên tắc của REST 
     - Cung cấp các điểm cuối (endpoints) mà client có thể truy cập để gửi yêu cầu và nhận phản 
-hồi từ server. Endpoint thường được biểu diễn bằng URL (Uniform Resource Locator)
+    hồi từ server. Endpoint thường được biểu diễn bằng URL (Uniform Resource Locator)
     - Phân biệt REST và RESTful API:
         + REST là một "kiến trúc" tổng quát
         + RESTful API là một "triển khai cụ thể" của kiến trúc đó để xây dựng và triển khai các dịch vụ web,
@@ -49,3 +49,125 @@ quả của yêu cầu HTTP được gửi bởi client.
     + 3XX: (Redirection: Chuyển hướng) VD: 300(Multiple Choice)
     + 4XX: (Client error: Lỗi từ người dùng) VD: 400(Bad Request)
     + 5XX: (Server error: Lỗi từ server) VD: 500(Internal Server Error)
+
+II) Quy chuẩn MISA RESTful API
+1) Quy định về Naming cho Resource, Endpoint
+    • Sử dụng danh từ số nhiều đặt tên cho Resource (tài nguyên) 
+        VD: Users, Products...
+    • Sử dụng dấu “/” để thể hiện mối quan hệ phân cấp giữa các resource 
+        VD: Lấy tất cả các đơn hàng của người dùng có ID là 1
+            +) Một user sở hữu nhiều order
+            +) Order ở đây đóng vai trò sub-resource của user
+            /Users/1/Orders
+            => Lưu ý: +) Chỉ áp dụng do các method dạng GET, DELETE. Không áp dụng cho 
+            method dạng POST, PUT
+                      +) Tránh thể hiện quá phân cấp 2 lớp gây phức tạp và khó quản lý
+    • Đặt tên Endpoint sử dụng Pascal Case
+        VD: Sử dụng Pascal Case
+            +) /Users
+            +) /BannedUsers
+            +) /Products/InternalCategory
+    • Sử dụng tham số
+        - Sử dụng tham số giúp cho URL đơn giản và có thể mở rộng
+        - Trường hợp tham số ít phức tạp, ngắn, giá trị kiểu nguyên thủy (<5 tham số, length <2000)
+            +) Lọc: cho phép truy vấn kết quả với các tham số cụ thể
+            VD: GET /Users?FullName=Anh&Age=3
+            +) Sắp xếp: sắp xếp kết quả trả về và hỗ trợ multisort
+            VD: GET /Users?Sort=FullName Desc,Birthday Asc
+        - Trường hợp tham số phức tạp, dài ( đặc thù MISA Paging) sử dụng POST thay thế
+        POST /Students/Pagination
+        {
+            "take": 50,
+            "filter": "[{\"Field\":\"Status\",\"Operator\":\"=\",\"Value\":1}]",
+            "columns": "FullName,DateOfBirth,ClassName,Address,Gender,NickName,Status…",
+            "sort": "FullName ASC, ClassName ASC"
+        }
+    • Không sử dụng động từ trong Endpoint
+        - Việc đặt các động từ trong URL là không đúng. REST sử dụng danh từ để biểu thị tài nguyên và các 
+        phương thức HTTP (GET, POST, PUT, DELETE, v.v.) được sử dụng để thực hiện các hành động trên các tài 
+        nguyên đó, hoạt động hiệu quả như động từ.
+        - VD: Phê duyệt một hợp đồng của một nhân viên
+            + Giải pháp 1: Nếu ngữ cảnh chỉ sử dụng để cập nhật riêng trường Status của Contract, trong quá trình cập nhật 
+            có xử lý các nghiệp vụ liên quan
+            VD: PATCH /Employees/{user_id}/Contracts/{contract_id}/ hi Status/{Status_id}
+            + Giải pháp 2: Nếu chỉ đơn thuần cập nhật thông tin thì có thể sử dụng PATCH chung với body là phần cần cập 
+            nhật
+            VD: PATCH /Employees/{user_id}/Contracts/{contract_id}
+2) Quy định về Request
+a) Quy định về Request header
+    *) Các header custom thì phải có tiền tố x-misa
+        - Header key: viết thường, không dấu
+        - Header value: cần encode nếu có ký tự unicode
+            x-misa-{headervalue}
+            VD: x-misa-tenantcode, x-misa-clienttid, x-misa-sessionid
+b) Quy định về Request body
+    *) Format: JSON
+        - Phổ biến
+        - Dễ đọc hiểu 
+        - Dễ dàng để các hệ thống máy tính phân tích và tạo ra
+    *) Size: 
+        - Không giới hạn, tuy nhiên mỗi loại WebServer có default riêng
+        - Lưu ý: tùy chỉnh lại phù hợp với nhu cầu thực tế tránh lỗi (Ví dụ 413 Request Entity Too Large)
+        - VD:
+            + IIS mặc định là 4MB
+            + Nginx mặc định là 1MB
+c) Quy định về sử dụng HTTP method
+    *) Sử dụng HTTP method phù hợp với hành động
+        - POST: sử dụng tạo tài nguyên  --> CREATE
+        - GET: lấy tài nguyên, không làm thay đổi trạng thái  --> READ
+        - PUT: cập nhật tài nguyên  --> UPDATE
+        - PATCH: cập nhật một phần tài nguyên  --> UPDATE
+        - DELETE: xoá hẳn tài nguyên  --> DELETE
+    *) VD về các method
+        - /Users
+            GET: Lấy danh sách tất cả người dùng
+            POST: Tạo một người dùng mớ
+            PUT: Không dùng
+            PATCH: Không dùng
+            DELETE: Không dùng
+        - /Users/123
+            GET: Lấy thông tin chi tiết người dùng 123
+            POST: Không dùng
+            PUT: Cập nhật thông tin cho người dùng 123 nếu có tồn tại
+            PATCH: Cập nhật một thông tin cho người dùng 123 nếu có tồn tại
+            DELETE: Xoá người dùng 123
+        - /Users/123/Orders
+            GET: Lấy  danh sách hóa đơn của người dùng 123
+            POST: Không dùng
+            PUT: Không dùng
+            PATCH: Không dùng
+            DELETE: Xóa tất cả hóa đơn của người dùng 123
+3) Quy định về Respons
+a) Quy định về sử dụng Http Status Code
+    *) Quy định về sử dụng Http Status Code
+        - 200(OK): Cho biết request đã thành công (GET/POST). Với trường hợp lấy dữ liệu nếu thành công 
+        thì trả về kết quả dữ liệu được truy vấn
+        - 201(CREATED): Tạo dữ liệu thành công (POST). Dữ liệu thêm mới thường được trả về kèm trong 
+        response
+        - 400(BAD REQUEST): Máy chủ nhận được một yêu cầu từ một client và không thể xử lý nó do yêu cầu không 
+        hợp lệ hoặc không thể hiểu được (dữ liệu yêu cầu không đúng, sai định dạng, sai kiểu 
+        dữ liệu)
+        - 401(UNAUTHORIZED): Client không cung cấp thông tin xác thực hợp lệ hoặc không có quyền truy cập
+        - 403(FORBIDDEN): Máy chủ từ chối thực hiện yêu cầu do người dùng không có quyền truy cập
+        - 422(BUSINESS EXCEPTION): Lỗi nghiệp vụ do dự án tự định nghĩa (kiểm tra trùng mã, validate nghiệp vụ, không tìm 
+        thấy bản ghi…
+        - 500(INTERNAL SERVER ERROR): Lỗi xảy ra trong quá trình xử lý của máy chủ
+b) Quy định về Response body
+    *) Format: JSON
+        - Phổ biến
+        - Dễ đọc hiểu
+        - Dễ dàng đề các hệ thống máy tính phân tích và tạo ra
+    *) Size: 
+        - Dùng DTO(Data Transfer Object) để trả về những thông tin cần thiết
+        VD: cho một "User": ID, Username, Email, DateOfBirth, Address, PostalCode, Country, CreditCardNumber
+        - Khi sử dụng DTO sẽ đưa ra kết quả như sau:
+        "UserDTO": ID, Username, Email, Country
+c) Quy định xử lý lỗi
+    *)  Trong các trường hợp server trả về Http Status Code lỗi (4xx, 5xx) cần trả thêm thông 
+    tin lỗi trong nội dung trả về
+    *) Mẫu response lỗi
+        - ErrorCode(Required): Định danh của mã lỗi. Phần lớn client sẽ sử dụng thông tin này để hiển thị message tương ứng
+        - DevMsg(Required): Thông báo cho Dev. Thông báo ngắn gọn để thông báo cho Dev biết vấn đề đang gặp phải
+        - UserMsg: Thông báo cho user, tùy theo đặc thù từng dịch vụ và client tích hợp
+        - MoreInfo(Required): Thông tin chi tiết hơn về vấn đề. Ví dụ: Dữ liệu trả về client hiển thị thông báo, dữ liệu lỗi liên quan
+        - Traceld(Required): Mã để tra cứu thông tin: ELK, file log, transaction
