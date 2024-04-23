@@ -171,3 +171,28 @@ c) Quy định xử lý lỗi
         - UserMsg: Thông báo cho user, tùy theo đặc thù từng dịch vụ và client tích hợp
         - MoreInfo(Required): Thông tin chi tiết hơn về vấn đề. Ví dụ: Dữ liệu trả về client hiển thị thông báo, dữ liệu lỗi liên quan
         - Traceld(Required): Mã để tra cứu thông tin: ELK, file log, transaction
+        VD mẫu lỗi: 
+        {
+            ErrorCode: “e001”,
+            DevMsg: “It was not possible to connect to redis server”,
+            UserMsg: “Có lỗi xảy ra! Vui lòng liên hệ với MISA”,
+            MoreInfo: “https://openapi.misa.com.vn/errorcode/e001”,
+            TraceId: “0654a167-8e70-4337-bea6-67c0c9e068df”
+        }
+III) Áp dụng
+    *) Yêu cầu: Xây dựng Restful API cho phần quản lý người dùng bao gồm các chức năng: 
+    thêm, sửa, xóa, hiển thị danh sách phân trang người dùng
+    *) Các bước thiết kế:
+        - B1: Xác định tài nguyên(Resource)
+            + Bài toán quản lý người dùng => Tài nguyên ở đây là người dùng Users
+        - B2: Xác định phương thức HTTPS sử dụng
+            + Thêm người dùng => Sử dụng POST
+            + Sửa người dùng => Sử dụng PUT
+            + Xoá người dùng => Sử dụng DELETE
+            + Lấy danh sách người dùng phân trang => Sử dụng GET. Tuy nhiên điều kiện filter và sort đặc thù 
+            MISA thường nhiều, sử dụng POST để thay thế (MISA Paging)
+        - B3: Xác định định dạng dữ liệu
+            + JSON
+        - B4: Thiết kế URL (Quy định về Resource, Endpoint)
+        - B5: Xây dựng API hoàn chỉnh
+            + Sau khi thực hiện thiết kế URL ta có thể implement chi tiết trong API để hoàn thiện API
