@@ -1,0 +1,51 @@
+I) Các khái niệm
+
+*) REST (Representational State Transfer) là một kiến trúc dựa trên giao thức HTTP.
+    - REST đặt ra các nguyên tắc và hướng dẫn để thiết kế các hệ thống phân tán mạch lạc, linh 
+    hoạt và dễ mở rộng
+    - REST tập trung vào việc xử lý và truyền tải các tài nguyên (resources)
+    - Một số nguyên tắc chính của REST bao gồm:
+        + Giao thức không trạng thái (Stateless Protocol)
+        + Giao tiếp thông qua các phương thức HTTP
+        + Các tài nguyên được định danh duy nhất
+        + Sử dụng các định dạng chuẩn để truyền tải dữ liệu
+        + Khả năng caching
+*) RESTful API (Representational State Transferful Application Programming 
+Interface) là một kiểu thiết kế và triển khai các dịch vụ web (web service) dựa trên kiến 
+trúc REST. 
+    - Tuân thủ nguyên tắc của REST 
+    - Cung cấp các điểm cuối (endpoints) mà client có thể truy cập để gửi yêu cầu và nhận phản 
+hồi từ server. Endpoint thường được biểu diễn bằng URL (Uniform Resource Locator)
+    - Phân biệt REST và RESTful API:
+        + REST là một "kiến trúc" tổng quát
+        + RESTful API là một "triển khai cụ thể" của kiến trúc đó để xây dựng và triển khai các dịch vụ web,
+tuân thủ các nguyên tắc và hướng dẫn của REST để tạo ra các dịch vụ web mạch lạc và linh hoạt
+*) Resource (tài nguyên) là các đối tượng hoặc thông tin mà client có thể truy cập thông qua các yêu cầu gửi
+đến server
+*) Endpoint (điểm cuối) là các URL (Uniform Resource Locator) mà client có thể truy cập để gửi yêu cầu và 
+nhận phản hồi từ server
+
+    VD: http://localhost:9999/restfullservices/v1/user/{id}
+    + http: Protocol
+    + localhost: Host(domain name)
+    + 9999: Port
+    + restfullservices: Application Context
+    + v1: Version
+    + user: Resource
+    + {id}: Parameter
+*) HTTP method chỉ định loại yêu cầu mà client gửi đến server và hành động mà server 
+nên thực hiện
+    VD:
+    + GET: nhận dữ liệu từ server
+    + POST: thêm dữ liệu vào một tài liệu đã tồn tại hoặc tài nguyên
+    + PUT: thay đổi (cập nhật) một tài liệu đã tồn tại hoặc tài nguyên trong server
+    + DELETE: xoá dữ liệu từ server
+    + PATCH: cập nhật một phần tài nguyên (sửa đổi)
+*) HTTP status code là một mã số 3 chữ số được trả về từ server để thông báo về kết 
+quả của yêu cầu HTTP được gửi bởi client.
+    VD: 
+    + 1XX: (Infomational: Thông báo) VD: 100(Continue)
+    + 2XX: (Success: Thành công) VD: 200(Ok)
+    + 3XX: (Redirection: Chuyển hướng) VD: 300(Multiple Choice)
+    + 4XX: (Client error: Lỗi từ người dùng) VD: 400(Bad Request)
+    + 5XX: (Server error: Lỗi từ server) VD: 500(Internal Server Error)
